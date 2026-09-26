@@ -199,64 +199,13 @@ clean_df.loc[clean_df['delivery_time(min)'] < 0 , 'delivery_time(min)'] = 0
 # )
 # clean_df['city_name'] = clean_df.apply(coordination_to_city, axis=1)
 
-
-# __________<( Save clean data )>_____________________
+# ______________________________________________________________
+# ____________________<( Save clean data )>_____________________
 clean_df.to_csv('data/clean_data.csv', index=False)
 
 
-# __________<( Graphs )>_____________________
-
-# Q1 = clean_df['distance'].quantile(0.25)
-# Q3 = clean_df['distance'].quantile(0.75)
-
-# IQR = Q3 - Q1
-
-# lower = Q1 - 1.5 * IQR
-# upper = Q3 + 1.5 * IQR
-
-# outliers = clean_df[
-#     (clean_df['distance'] < lower) |
-#     (clean_df['distance'] > upper)
-# ]
-
-
-
-# for city in clean_df['City'].unique():
-#     city_df = clean_df[clean_df['City'] == city]
-#     plt.scatter(
-#         city_df['Time_taken(min)'],
-#         city_df['distance'], 
-#         label = city
-#         )
-# plt.figure(figsize=(12,6))
-# for city in outliers['City'].unique():
-#     city_df = outliers[clean_df['City'] == city]
-#     plt.scatter(
-#         city_df['Time_taken(min)'],
-#         city_df['distance'], 
-#         label = city
-#         )
-    
-# plt.ylabel('Distance (km)')
-# plt.xlabel('Time Taken (min)')
-# plt.title('Distance vs Delivery Time')
-# plt.legend()
-# plt.show()
-
-
-
-
-
-
-
-
-
-print(f"df shape : {clean_df.shape}")
-
-
-
-
-# ________________________ <( test test test )>__________________________________
+# _______________________________________________________________________
+# ________________________ <( Graphs )>__________________________________
 Q1 = clean_df['distance'].quantile(0.25)
 Q3 = clean_df['distance'].quantile(0.75)
 
@@ -281,21 +230,113 @@ outliers = clean_df[
 #         city_df['distance'],
 #         label=city
 #     )
+# __________________________________________________________________________________________________
+# __________________<( order time(time_catg) vs time taken )_________________________________________
+def categorize_time(t):
+    if pd.isna(t):
+        return None
 
-# Outliers
-# plt.scatter(
-#     outliers['Time_taken(min)'],
-#     outliers['distance'],
-#     marker='x',
-#     label='Outliers'
+    hour = t.hour
+
+    if 6 <= hour < 12:
+        return 'Morning'
+    elif 12 <= hour < 17:
+        return 'Afternoon'
+    elif 17 <= hour < 22:
+        return 'Evening'
+    else:
+        return 'Night'
+clean_df['time_category'] = clean_df['Time_Orderd'].apply(categorize_time)
+clean_df.to_csv('data/clean_data.csv', index=False)
+avg_time = clean_df.groupby('time_category')['Time_taken(min)'].mean()
+plt.figure(figsize=(8, 5))
+plt.bar(
+    avg_time.index,
+    avg_time.values
+)
+plt.xlabel('Time category')
+plt.ylabel('Average time taken (min)')
+plt.title('Average Delivery Time by Order Time Category')
+
+# plt.show()
+
+
+# __________________________________________________________________________________________________
+# __________________<( Type_of_vehicle vs time taken )________________________________________
+avg_time = clean_df.groupby('Type_of_vehicle')['Time_taken(min)'].mean()
+plt.figure(figsize=(8, 5))
+plt.bar(
+    avg_time.index,
+    avg_time.values
+)
+plt.xlabel('Type_of_vehicle')
+plt.ylabel('Average time taken (min)')
+plt.title('Average Delivery Time by Type of vehicle')
+
+# plt.show()
+
+
+
+
+
+# # __________________________________________________________________________________________________
+# # __________________<( traffic vs time taken )________________________________________
+avg_time = clean_df.groupby('Road_traffic_density')['Time_taken(min)'].mean()
+plt.figure(figsize=(8, 5))
+plt.bar(
+    avg_time.index,
+    avg_time.values
+)
+plt.xlabel('Road_traffic_density')
+plt.ylabel('Average time taken (min)')
+plt.title('Average Delivery Time by traffic density')
+
+# plt.show()
+
+
+
+
+# __________________________________________________________________________________________________
+# __________________<( city type vs time taken )________________________________________
+avg_time = clean_df.groupby('City')['Time_taken(min)'].mean()
+plt.figure(figsize=(8, 5))
+plt.bar(
+    avg_time.index,
+    avg_time.values
+)
+plt.xlabel('City')
+plt.ylabel('Average time taken (min)')
+plt.title('Average Delivery Time by City')
+
+# plt.show()
+
+
+print(clean_df.columns)
+
+
+# # __________________________________________________________________________________________________
+# # __________________<( Weather Conditions vs time taken )________________________________________
+# avg_time = clean_df.groupby('Weatherconditions')['Time_taken(min)'].mean()
+# plt.figure(figsize=(8, 5))
+# plt.bar(
+#     avg_time.index,
+#     avg_time.values
 # )
+# plt.xlabel('Weather Conditions')
+# plt.ylabel('Average time taken (min)')
+# plt.title('Average Delivery Time by weather')
+
+# plt.show()
+
+
+
+
 
 
 # ___________________________________________________________________________
 # ________________<( analyze the making order vs the order type )>___________
 # print(f'types of orders : {clean_df['Type_of_order'].unique()}')
 # we have for types of order : ['Snack', 'Drinks', 'Buffet', 'Meal']
-
 orders = clean_df['Type_of_order'].unique()
 for order in orders:
     data = clean_df.loc[clean_df['Type_of_order']== order]
@@ -307,7 +348,9 @@ for order in orders:
     plt.title(f'{order} orders')
     plt.xticks([5, 10, 15])
 
-    plt.show()
+    # plt.show()
+# result => order type had 0 impact on the time_taken
+
 
 # ____________________________________________________________________________________
 # ________________<( analyze the order type and time it takes to be made )>___________
