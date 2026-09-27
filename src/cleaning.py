@@ -398,3 +398,18 @@ plt.ylabel('Time_taken (min)')
 plt.title('time taken  vs delivery guy time')
 
 # plt.show()
+
+
+# ____________________________________________________________
+# _________________<( RESULT !!!!!!!!!!!!!!!)>________________
+# TRAINING SET
+# MAE:  4.54 minutes
+# MSE:  33.95
+# RMSE: 5.83 minutes
+# R²:   0.6132
+
+# TEST SET
+# MAE:  4.86 minutes
+# MSE:  37.68
+# RMSE: 6.14 minutes
+# R²:   0.5701
